@@ -1,6 +1,6 @@
 local cam = nil
 local charPed = nil
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBE = exports['qb-extended']:GetCoreObject()
 
 -- Main Thread
 
@@ -8,8 +8,8 @@ CreateThread(function()
 	while true do
 		Wait(0)
 		if NetworkIsSessionStarted() then
-			TriggerEvent('qb-multicharacter:client:chooseChar')
-			return
+			TriggerEvent('qbe-multicharacter:client:chooseChar')
+			break
 		end
 	end
 end)
@@ -17,7 +17,6 @@ end)
 -- Functions
 
 local function skyCam(bool)
-    TriggerEvent('qb-weathersync:client:DisableSync')
     if bool then
         DoScreenFadeIn(1000)
         SetTimecycleModifier('hud_def_blur')
@@ -36,7 +35,7 @@ local function skyCam(bool)
 end
 
 local function openCharMenu(bool)
-    QBCore.Functions.TriggerCallback("qb-multicharacter:server:GetNumberOfCharacters", function(result)
+    QBE.Functions.TriggerCallback("qbe-multicharacter:server:GetNumberOfCharacters", function(result)
         SetNuiFocus(bool, bool)
         SendNUIMessage({
             action = "ui",
@@ -51,31 +50,33 @@ end
 
 -- Events
 
-RegisterNetEvent('qb-multicharacter:client:closeNUIdefault', function() -- This event is only for no starting apartments
+RegisterNetEvent('qbe-multicharacter:client:closeNUIdefault', function() -- This event is only for no starting apartments
     DeleteEntity(charPed)
     SetNuiFocus(false, false)
     DoScreenFadeOut(500)
     Wait(2000)
     SetEntityCoords(PlayerPedId(), Config.DefaultSpawn.x, Config.DefaultSpawn.y, Config.DefaultSpawn.z)
-    TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
-    TriggerEvent('QBCore:Client:OnPlayerLoaded')
-    TriggerServerEvent('qb-houses:server:SetInsideMeta', 0, false)
-    TriggerServerEvent('qb-apartments:server:SetInsideMeta', 0, 0, false)
+    TriggerServerEvent('QBE:Server:OnPlayerLoaded')
+    TriggerEvent('QBE:Client:OnPlayerLoaded')
+    TriggerServerEvent('qbe-houses:server:SetInsideMeta', 0, false)
+    TriggerServerEvent('qbe-apartments:server:SetInsideMeta', 0, 0, false)
     Wait(500)
     openCharMenu()
     SetEntityVisible(PlayerPedId(), true)
     Wait(500)
     DoScreenFadeIn(250)
-    TriggerEvent('qb-weathersync:client:EnableSync')
-    TriggerEvent('qb-clothes:client:CreateFirstCharacter')
+    TriggerEvent('qbe-clothes:client:CreateFirstCharacter')
 end)
 
-RegisterNetEvent('qb-multicharacter:client:closeNUI', function()
-    DeleteEntity(charPed)
-    SetNuiFocus(false, false)
-end)
 
-RegisterNetEvent('qb-multicharacter:client:chooseChar', function()
+--- More Debug shit?
+-- RegisterNetEvent('qbe-multicharacter:client:closeNUI', function()
+--     DeleteEntity(charPed)
+--     SetNuiFocus(false, false)
+-- end)
+
+RegisterNetEvent('qbe-multicharacter:client:chooseChar', function()
+    local ped = PlayerPedId()
     SetNuiFocus(false, false)
     DoScreenFadeOut(10)
     Wait(1000)
@@ -84,8 +85,8 @@ RegisterNetEvent('qb-multicharacter:client:chooseChar', function()
     while not IsInteriorReady(interior) do
         Wait(1000)
     end
-    FreezeEntityPosition(PlayerPedId(), true)
-    SetEntityCoords(PlayerPedId(), Config.HiddenCoords.x, Config.HiddenCoords.y, Config.HiddenCoords.z)
+    FreezeEntityPosition(ped, true)
+    SetEntityCoords(ped, Config.HiddenCoords.x, Config.HiddenCoords.y, Config.HiddenCoords.z)
     Wait(1500)
     ShutdownLoadingScreen()
     ShutdownLoadingScreenNui()
@@ -102,14 +103,14 @@ end)
 RegisterNUICallback('disconnectButton', function(_, cb)
     SetEntityAsMissionEntity(charPed, true, true)
     DeleteEntity(charPed)
-    TriggerServerEvent('qb-multicharacter:server:disconnect')
+    TriggerServerEvent('qbe-multicharacter:server:disconnect')
     cb("ok")
 end)
 
 RegisterNUICallback('selectCharacter', function(data, cb)
     local cData = data.cData
     DoScreenFadeOut(10)
-    TriggerServerEvent('qb-multicharacter:server:loadUserData', cData)
+    TriggerServerEvent('qbe-multicharacter:server:loadUserData', cData)
     openCharMenu(false)
     SetEntityAsMissionEntity(charPed, true, true)
     DeleteEntity(charPed)
@@ -121,7 +122,7 @@ RegisterNUICallback('cDataPed', function(nData, cb)
     SetEntityAsMissionEntity(charPed, true, true)
     DeleteEntity(charPed)
     if cData ~= nil then
-        QBCore.Functions.TriggerCallback('qb-multicharacter:server:getSkin', function(model, data)
+        QBE.Functions.TriggerCallback('qbe-multicharacter:server:getSkin', function(model, data)
             model = model ~= nil and tonumber(model) or false
             if model ~= nil then
                 CreateThread(function()
@@ -136,7 +137,7 @@ RegisterNUICallback('cDataPed', function(nData, cb)
                     PlaceObjectOnGroundProperly(charPed)
                     SetBlockingOfNonTemporaryEvents(charPed, true)
                     data = json.decode(data)
-                    TriggerEvent('qb-clothing:client:loadPlayerClothing', data, charPed)
+                    TriggerEvent('qbe-clothing:client:loadPlayerClothing', data, charPed)
                 end)
             else
                 CreateThread(function()
@@ -182,7 +183,7 @@ RegisterNUICallback('cDataPed', function(nData, cb)
 end)
 
 RegisterNUICallback('setupCharacters', function(_, cb)
-    QBCore.Functions.TriggerCallback("qb-multicharacter:server:setupCharacters", function(result)
+    QBE.Functions.TriggerCallback("qbe-multicharacter:server:setupCharacters", function(result)
         SendNUIMessage({
             action = "setupCharacters",
             characters = result
@@ -204,14 +205,14 @@ RegisterNUICallback('createNewCharacter', function(data, cb)
     elseif cData.gender == Lang:t("ui.female") then
         cData.gender = 1
     end
-    TriggerServerEvent('qb-multicharacter:server:createCharacter', cData)
+    TriggerServerEvent('qbe-multicharacter:server:createCharacter', cData)
     Wait(500)
     cb("ok")
 end)
 
 RegisterNUICallback('removeCharacter', function(data, cb)
-    TriggerServerEvent('qb-multicharacter:server:deleteCharacter', data.citizenid)
+    TriggerServerEvent('qbe-multicharacter:server:deleteCharacter', data.citizenid)
     DeletePed(charPed)
-    TriggerEvent('qb-multicharacter:client:chooseChar')
+    TriggerEvent('qbe-multicharacter:client:chooseChar')
     cb("ok")
 end)

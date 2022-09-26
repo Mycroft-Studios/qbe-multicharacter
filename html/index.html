@@ -8,7 +8,7 @@
     <link href="reset.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <title>QB-Multicharacter</title>
+    <title>QBE-Multicharacter</title>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -262,12 +262,12 @@
                     viewmodel.selectedCharacter = idx
 
                     if (viewmodel.characters[idx] !== undefined) {
-                        axios.post('https://qb-multicharacter/cDataPed', {
+                        axios.post('https://qbe-multicharacter/cDataPed', {
                             cData: viewmodel.characters[idx]
                         });
                     }
                     else {
-                        axios.post('https://qb-multicharacter/cDataPed', {})
+                        axios.post('https://qbe-multicharacter/cDataPed', {})
                     }
                 },
 
@@ -278,7 +278,7 @@
                 delete_character: function() {
                     if (viewmodel.show.delete == true) {
                         viewmodel.show.delete = false
-                        axios.post('https://qb-multicharacter/removeCharacter', {
+                        axios.post('https://qbe-multicharacter/removeCharacter', {
                             citizenid: viewmodel.characters[viewmodel.selectedCharacter].citizenid
                         });
                     }
@@ -295,7 +295,7 @@
                         var data = viewmodel.characters[viewmodel.selectedCharacter]
 
                         if (data !== undefined) {
-                            axios.post('https://qb-multicharacter/selectCharacter', {
+                            axios.post('https://qbe-multicharacter/selectCharacter', {
                                 cData: data
                             });
                             setTimeout(function() {
@@ -323,7 +323,7 @@
                     if (profanityTest && registerData.firstname !== undefined && registerData.firstname !== "" && registerData.lastname !== undefined && registerData.lastname !== "" && registerData.gender !== undefined && registerData.nationality !== undefined && registerData.nationality !== "" && registerData.date !== undefined) {
                         viewmodel.show.register = false
 
-                        axios.post('https://qb-multicharacter/createNewCharacter', {
+                        axios.post('https://qbe-multicharacter/createNewCharacter', {
                             firstname: registerData.firstname,
                             lastname: registerData.lastname,
                             nationality: registerData.nationality,
@@ -393,14 +393,14 @@
                                 }, 500);
 
                                 setTimeout(function () {
-                                    axios.post('https://qb-multicharacter/setupCharacters');
+                                    axios.post('https://qbe-multicharacter/setupCharacters');
                                     setTimeout(function () {
                                         clearInterval(DotsInterval);
                                         loadingProgress = 0;
                                         viewmodel.loadingText = viewmodel.translations.retrieving_playerdata;
                                         viewmodel.show.loading = false
                                         viewmodel.show.characters = true
-                                        axios.post('https://qb-multicharacter/removeBlur');
+                                        axios.post('https://qbe-multicharacter/removeBlur');
                                     }, 2000);
                                 }, 2000);
                             }
