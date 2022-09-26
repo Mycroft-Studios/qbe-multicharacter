@@ -1,11 +1,11 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QB-Multicharacter'
+description 'QBE-Multicharacter'
 version '1.0.0'
 
 shared_scripts {
-    '@qb-core/shared/locale.lua',
+    '@qb-extended/shared/locale.lua',
     'locales/en.lua',
     'locales/*.lua',
     'config.lua'
@@ -17,7 +17,7 @@ client_scripts {
 
 server_scripts  {
     '@oxmysql/lib/MySQL.lua',
-    '@qb-apartments/config.lua',
+    '@qbe-apartments/config.lua',
     'server/main.lua'
 }
 
@@ -33,8 +33,8 @@ files {
 }
 
 dependencies {
-    'qb-core',
-    'qb-spawn'
+    'qb-extended',
+    'qbe-spawn'
 }
 
 lua54 'yes'
